@@ -8,7 +8,8 @@
 #include <time.h>
 
 static void vec_ReLU(vec_t *O, const vec_t *X);
-static void vec_softmax(vec_t *O, const vec_t *X);
+static scalar_t ReLU_diff(scalar_t x);
+
 
 nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
   nn_t *res = malloc(sizeof(nn_t));
@@ -36,6 +37,8 @@ nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
   return res;
 }
 
+
+
 void nn_train(nn_t* nn, const vec_t* inputs, const vec_t* labels) {
 #ifndef NDEBUG
   assert(inputs->n == nn->w1->n);
@@ -52,14 +55,30 @@ void nn_train(nn_t* nn, const vec_t* inputs, const vec_t* labels) {
   vec_t *O_o = new_vec(X_o->n);
 
   mat_vec_mul(X_o, nn->w2, O_h);
-  vec_softmax(O_o, X_o);
+  vec_ReLU(O_o, X_o);
 
-  puts("***************************************");
-  for(size_t i = 0; i < (X_o->n); i++) {
-          printf("%zu: %Lf.\n", i, (O_o->data)[i]);
+  vec_t* e1 = new_vec(O_o->n);
+  scalar_t err = 0;
+  for(size_t i=0; i < (e1->n); i++) {
+          scalar_t diff = (O_o->data)[i] - (labels->data)[i];
+          (e1->data)[i] = diff * diff;
+          err += (e1->data)[i];
   }
-  puts("***************************************");
 
+  printf("error value: %Lf.\n", err);
+
+  
+  for(size_t i = 0; i < (nn->w2->m); i++) {
+          for(size_t j = 0; j < (nn->w2->n); j++) {
+                  (nn->w2->data)[(nn->w2->m) * i + j] -= LR * (-2) *((labels->data)[i] - ((O_o->data)[i])) * ReLU_diff((O_o->data)[i]) * (O_h->data)[j];
+          }
+  }
+
+  free_vec(X_h);
+  free_vec(O_h);
+  free_vec(X_o);
+  free_vec(O_o);
+  free_vec(e1);
 }
 
 
@@ -73,46 +92,10 @@ static void vec_ReLU(vec_t* O, const vec_t* X) {
         }
 }
 
-
-// numerically stable softmax
-// approach taken from:
-// https://timvieira.github.io/blog/post/2014/02/11/exp-normalize-trick/
-static void vec_softmax(vec_t* O, const vec_t *X) {
-#ifndef NDEBUG
-        assert(O->n == X->n);
-#endif 
-
-  // find the maximum of X
-  scalar_t max = (X->data)[0];
-  for (size_t i = 1; i < (X->n); i++) {
-    if ((X->data)[i] > max)
-      max = (X->data)[i];
-  }
-
-  for (size_t i = 0; i < (O->n); i++) {
-    (O->data)[i] = (X->data)[i] - max;
-  }
-
-  scalar_t sum = 0;
-  for (size_t i = 0; i < (O->n); i++) {
-    sum += expl((O->data)[i]);
-#ifndef NDEBUG
-    if (errno != 0) {
-      perror("softmax");
-      exit(1);
-    }
-#endif
-  }
-
-  for (size_t i = 0; i < (O->n); i++) {
-    (O->data)[i] = expl((O->data)[i]) / sum;
-#ifndef NDEBUG
-    if (errno != 0) {
-      perror("softmax");
-      exit(1);
-    }
-#endif
-  }
+static scalar_t ReLU_diff(scalar_t x) {
+        // we return 0.001 instead of 0.0 so 
+        // the whole term above is not zero.
+        return (x > 0.0) ? 1.0 : 0.001;
 }
 
 void free_nn(nn_t *nn) {
