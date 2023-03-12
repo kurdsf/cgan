@@ -1,7 +1,9 @@
 ## cgan - a simple GAN written in c (with only libc).
 
-**Important Note**: You need to unzip data.zip before you 
-can run the program. I compressed it so I could upload it on github.
+**Quick Start:**
+```
+   git clone https://github.com/kurdsf/cgan.git && make unzip && make release && ./cgan
+```
 
 The goal of the project is to generate MNIST Digits with 
 a GAN.
