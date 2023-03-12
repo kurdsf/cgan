@@ -37,16 +37,20 @@ void free_mat(mat_t *A) {
 
 vec_t *new_vec(size_t n) {
   vec_t *res = malloc(sizeof(vec_t));
+#ifndef NDEBUG
   if (res == NULL) {
     perror("new_vec");
     exit(1);
   }
+#endif
 
   scalar_t *data = malloc(sizeof(scalar_t) * n);
+#ifndef NDEBUG
   if (data == NULL) {
     perror("new_vec");
     exit(1);
   }
+#endif
 
   res->n = n;
   res->data = data;
