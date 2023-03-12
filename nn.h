@@ -11,7 +11,8 @@ typedef struct {
 } nn_t;
 
 nn_t *new_nn(size_t isize, size_t hsize, size_t osize);
-void nn_forward(vec_t *dest, const nn_t *nn, vec_t *input);
+// Note that this function logs some infos to stdout.
+void nn_train(nn_t* nn, const vec_t* inputs, const vec_t* labels);
 void free_nn(nn_t *nn);
 
 #endif // NN_H

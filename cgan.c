@@ -6,9 +6,10 @@
 #include "mat.h"
 #include "nn.h"
 
+
 // Returns NULL incase of EOF.
 // Furthermore, it expects '\n' instead of '\r\n'
-vec_t *get_next_image(FILE *f, int *label) {
+static vec_t *get_next_image(FILE *f, int *label) {
   static char *line;
   static size_t n;
   // check if we have reached EOF yet.
@@ -86,26 +87,28 @@ int main() {
   }
 
   int label;
-  vec_t *i;
+  vec_t *labels = new_vec(10);
+  vec_t *inputs;
+
   nn_t *nn = new_nn(28 * 28, 30, 10);
-
-  vec_t *o = new_vec(10);
-
+  
   size_t nimg = 0;
 
-  while ((i = get_next_image(train_file, &label)) != NULL) {
-    nn_forward(o, nn, i);
-    printf("++++++++++++ IMAGE NO %zu START +++++++++++++\n", nimg);
-    printf("label: %d.\n", label);
-    for (size_t i = 0; i < (o->n); i++)
-      printf("%zu: %Lf.\n", i, (o->data)[i]);
+  while ((inputs = get_next_image(train_file, &label)) != NULL) {
+    // one-hot-encode labels with label.
+    for(size_t i=0; i < (labels->n); i++) {
+            if(label == (int) i) {
+                    (labels->data)[i] = 1.0;
+            } else {
+                    (labels->data)[i] = 0.0;
+            }
+    }
 
-    printf("++++++++++++ IMAGE NO %zu END +++++++++++++\n", nimg);
-    free_vec(i);
+    nn_train(nn, inputs, labels);
+    free_vec(inputs);
     nimg++;
   }
 
-  free_vec(o);
   free_nn(nn);
 
   return 0;
