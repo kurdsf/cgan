@@ -8,16 +8,20 @@ mat_t* new_mat(size_t m, size_t n) {
         mat_t* res = malloc(sizeof(mat_t));
         // In our program we cannot recover from out-of-memory errors, 
         // so we will just exit.
+#ifndef NDEBUG
         if(res == NULL) {
                 perror("new_mat");
                 exit(1);
         }
+#endif
 
-        double* data = malloc(sizeof(double) * n * m);
+        scalar_t* data = malloc(sizeof(scalar_t) * n * m);
+#ifndef NDEBUG
         if(data == NULL) {
                 perror("new_mat");
                 exit(1);
         }
+#endif
 
         res->m = m;
         res->n = n;
@@ -39,7 +43,7 @@ vec_t* new_vec(size_t n) {
                 exit(1);
         }
 
-        double* data = malloc(sizeof(double) * n);
+        scalar_t* data = malloc(sizeof(scalar_t) * n);
         if(data == NULL) {
                 perror("new_vec");
                 exit(1);
@@ -58,10 +62,12 @@ void free_vec(vec_t* x) {
 }
 
 void mat_vec_mul(vec_t* restrict dest, const mat_t* restrict A, const vec_t* restrict x) {
+#ifndef NDEBUG
         assert(dest->n == A->m);
         assert(x->n == A->n);
+#endif 
         for(size_t i = 0; i < A->m; i++) {
-                double res = 0;
+                scalar_t res = 0;
                 for(size_t j = 0; j < A->n; j++) {
                         res += (x->data)[j] * (A->data)[A->m * i + j];
                 }
@@ -70,8 +76,10 @@ void mat_vec_mul(vec_t* restrict dest, const mat_t* restrict A, const vec_t* res
 }
 
 void vec_add(vec_t* dest, const vec_t* x, const vec_t* y) {
+#ifndef NDEBUG
         assert(dest->n == x->n);
         assert(x->n == y->n);
+#endif
         for(size_t i = 0; i < dest->n; i++) {
                 (dest->data)[i] = (x->data)[i] + (y->data)[i];
         }

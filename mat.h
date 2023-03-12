@@ -1,13 +1,16 @@
 #ifndef MAT_H
 #define MAT_H
 
+typedef long double scalar_t;
+
+
 typedef struct {
-        double* data;
+        scalar_t* data;
         size_t m,n;
 } mat_t;
 
 typedef struct {
-        double* data;
+        scalar_t* data;
         size_t n;
 } vec_t;
 
