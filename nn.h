@@ -7,12 +7,13 @@
 
 // the learning rate.
 // change and recompile as needed.
-#define LR 0.0000001L
+#define LR 0.01L
 
 typedef struct {
   mat_t *w1;
   mat_t *w2;
 } nn_t;
+
 
 nn_t *new_nn(size_t isize, size_t hsize, size_t osize);
 // Note that this function logs some infos to stdout.
