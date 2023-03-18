@@ -138,8 +138,8 @@ void free_nn(nn_t *nn) {
 }
 
 static size_t efread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
-  size_t items_read = efread(ptr, size, nmemb, stream);
-  if (items_read != size * nmemb) {
+  size_t items_read = fread(ptr, size, nmemb, stream);
+  if (items_read != nmemb) {
     perror("nn_read: fread");
     exit(1);
   }
@@ -148,8 +148,8 @@ static size_t efread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 
 static size_t efwrite(const void *ptr, size_t size, size_t nmemb,
                       FILE *stream) {
-  size_t items_written = efwrite(ptr, size, nmemb, stream);
-  if (items_written != size * nmemb) {
+  size_t items_written = fwrite(ptr, size, nmemb, stream);
+  if (items_written != nmemb) {
     perror("nn_write: fwrite");
     exit(1);
   }
@@ -178,8 +178,8 @@ nn_t *nn_read(const char *path) {
   mat_t *w1 = new_mat(h, i);
   mat_t *w2 = new_mat(o, h);
 
-  efread(w1, sizeof(scalar_t), h * i, f);
-  efread(w1, sizeof(scalar_t), o * h, f);
+  efread(w1->data, sizeof(scalar_t), h * i, f);
+  efread(w1->data, sizeof(scalar_t), o * h, f);
 
   fclose(f);
 

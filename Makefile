@@ -1,4 +1,4 @@
-CC:=cc
+CC:=clang
 CFLAGS:= -Wall -Wextra -std=gnu11
 DFLAGS:= -g -Og -fno-omit-frame-pointer
 RFLAGS:= -Ofast -DNDEBUG 
