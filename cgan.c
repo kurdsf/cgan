@@ -1,13 +1,11 @@
 #include <errno.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <unistd.h>
 
 #include "mat.h"
 #include "nn.h"
-
 
 // Returns NULL incase of EOF.
 // Furthermore, it expects '\n' instead of '\r\n'
@@ -93,27 +91,23 @@ int main() {
   vec_t *inputs;
 
   nn_t *nn = new_nn(28 * 28, 200, 10);
-  
+
   size_t nimg = 0;
 
   while ((inputs = get_next_image(train_file, &label)) != NULL) {
-  // one-hot-encode labels with label.
-  for(size_t i=0; i < (labels->n); i++) {
-          if(label == (int) i) {
-                  (labels->data)[i] = 1.0L;
-          } else {
-                 (labels->data)[i] = 0.0L;
-          }
-  }
+    // one-hot-encode labels with label.
+    for (size_t i = 0; i < (labels->n); i++) {
+      if (label == (int)i) {
+        (labels->data)[i] = 1.0L;
+      } else {
+        (labels->data)[i] = 0.0L;
+      }
+    }
 
     nn_train(nn, inputs, labels);
     free_vec(inputs);
     nimg++;
   }
-
-  
-  
-  
 
   free_vec(labels);
 
