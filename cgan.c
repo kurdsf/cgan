@@ -111,6 +111,7 @@ int main() {
 
   free_vec(labels);
 
+  nn_write("weights", nn);
   free_nn(nn);
 
   return 0;
