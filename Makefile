@@ -1,10 +1,10 @@
-CC:=clang
+CC:=cc
 CFLAGS:= -Wall -Wextra -std=gnu11
 DFLAGS:= -g -Og -fno-omit-frame-pointer
 RFLAGS:= -Ofast -DNDEBUG 
 SRCS:= nn.c mat.c
 
-.PHONY: release debug unzip zip clean
+.PHONY: test release debug unzip zip clean
 
 release:
 	$(CC) $(CFLAGS) $(RFLAGS) $(SRCS) cgan.c -lm -o cgan
