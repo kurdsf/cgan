@@ -1,6 +1,6 @@
 CC:=cc
 CFLAGS:= -Wall -Wextra -std=gnu11
-DFLAGS:= -fsanitize=address,undefined -g -Og -fno-omit-frame-pointer
+DFLAGS:= -g -Og -fno-omit-frame-pointer
 RFLAGS:= -Ofast -DNDEBUG 
 SRCS:= nn.c mat.c
 

@@ -1,7 +1,9 @@
 #include <errno.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 #include "mat.h"
 #include "nn.h"
@@ -82,7 +84,7 @@ static vec_t *get_next_image(FILE *f, int *label) {
 int main() {
   FILE *train_file = fopen("mnist_train.csv", "r");
   if (train_file == NULL) {
-    perror("train_file");
+    perror("mnist_train.csv");
     return 1;
   }
 
@@ -90,24 +92,30 @@ int main() {
   vec_t *labels = new_vec(10);
   vec_t *inputs;
 
-  nn_t *nn = new_nn(28 * 28, 30, 10);
+  nn_t *nn = new_nn(28 * 28, 200, 10);
   
   size_t nimg = 0;
 
   while ((inputs = get_next_image(train_file, &label)) != NULL) {
-    // one-hot-encode labels with label.
-    for(size_t i=0; i < (labels->n); i++) {
-            if(label == (int) i) {
-                    (labels->data)[i] = 1.0;
-            } else {
-                    (labels->data)[i] = 0.0;
-            }
-    }
+  // one-hot-encode labels with label.
+  for(size_t i=0; i < (labels->n); i++) {
+          if(label == (int) i) {
+                  (labels->data)[i] = 1.0L;
+          } else {
+                 (labels->data)[i] = 0.0L;
+          }
+  }
 
     nn_train(nn, inputs, labels);
     free_vec(inputs);
     nimg++;
   }
+
+  
+  
+  
+
+  free_vec(labels);
 
   free_nn(nn);
 
