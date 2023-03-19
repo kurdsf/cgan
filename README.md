@@ -1,4 +1,6 @@
-## cgan - a simple GAN written in c (with only libc).
+## cgan - a simple GAN written in C (with only libc).
+
+This project is currently WIP.
 
 **Quick Start:**
 ```
