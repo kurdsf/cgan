@@ -77,4 +77,3 @@ void mat_vec_mul(vec_t *restrict dest, const mat_t *restrict A,
     (dest->data)[i] = res;
   }
 }
-

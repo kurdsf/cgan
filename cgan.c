@@ -90,13 +90,13 @@ int main() {
   vec_t *labels = new_vec(10);
   vec_t *inputs;
 
-  nn_t* nn;
-  if(access("weights", F_OK) == 0) {
-        puts("Read from weights");
-        nn = nn_read("weights");
+  nn_t *nn;
+  if (access("weights", F_OK) == 0) {
+    puts("Read from weights");
+    nn = nn_read("weights");
   } else {
-        errno = 0;
-        nn = new_nn(28 * 28, 200, 10);
+    errno = 0;
+    nn = new_nn(28 * 28, 200, 10);
   }
 
   size_t nimg = 0;
