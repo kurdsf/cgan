@@ -1,6 +1,8 @@
 #ifndef MAT_H
 #define MAT_H
 
+#include <stddef.h>
+
 typedef long double scalar_t;
 
 typedef struct {

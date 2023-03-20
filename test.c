@@ -47,8 +47,8 @@ UTEST(mat_h, vec_mat_mul) {
 
   mat_vec_mul(b, A, x);
 
-  ASSERT_EQ((b->data)[0], );
-  ASSERT_EQ((b->data)[1], );
+  ASSERT_EQ((b->data)[0], 4.44L);
+  ASSERT_EQ((b->data)[1], 0.42L);
 
   free_vec(x);
   free_mat(A);
