@@ -78,12 +78,3 @@ void mat_vec_mul(vec_t *restrict dest, const mat_t *restrict A,
   }
 }
 
-void vec_add(vec_t *dest, const vec_t *x, const vec_t *y) {
-#ifndef NDEBUG
-  assert(dest->n == x->n);
-  assert(x->n == y->n);
-#endif
-  for (size_t i = 0; i < dest->n; i++) {
-    (dest->data)[i] = (x->data)[i] + (y->data)[i];
-  }
-}

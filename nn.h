@@ -7,7 +7,7 @@
 
 // the learning rate.
 // change and recompile as needed.
-#define LR 0.001L
+#define LR 0.1L
 
 typedef struct {
   mat_t *w1;
