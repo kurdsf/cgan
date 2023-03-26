@@ -111,7 +111,8 @@ int main() {
       }
     }
 
-    nn_train(nn, inputs, labels);
+    scalar_t err = nn_train(nn, inputs, labels);
+    printf("debug: err: %Lf", err);
     free_vec(inputs);
     nimg++;
   }

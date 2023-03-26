@@ -40,7 +40,7 @@ nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
   return res;
 }
 
-void nn_train(nn_t *nn, const vec_t *inputs, const vec_t *labels) {
+scalar_t nn_train(nn_t *nn, const vec_t *inputs, const vec_t *labels) {
 #ifndef NDEBUG
   assert(inputs->n == nn->w1->n);
   assert(labels->n == nn->w2->m);
@@ -73,8 +73,6 @@ void nn_train(nn_t *nn, const vec_t *inputs, const vec_t *labels) {
     (e1->data)[i] = (labels->data)[i] - (O_o->data)[i];
     err += (e1->data)[i] * (e1->data)[i];
   }
-
-  printf("info: error: %Lf.\n", err);
 
   for (size_t i = 0; i < (nn->w2->m); i++) {
     for (size_t j = 0; j < (nn->w2->n); j++) {
@@ -114,6 +112,8 @@ void nn_train(nn_t *nn, const vec_t *inputs, const vec_t *labels) {
   free_vec(O_o);
   free_vec(e1);
   free_vec(e2);
+
+  return err;
 }
 
 static scalar_t sigmoid(scalar_t x) {
