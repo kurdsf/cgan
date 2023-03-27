@@ -8,7 +8,10 @@ This project only works under linux and requires make.
 
 ### Quick Start
 ```bash 
-        git clone https://github.com/kurdsf/cgan.git && cd cgan && make 
+        git clone https://github.com/kurdsf/cgan.git 
+        && cd cgan 
+        && make unzip
+        && make 
 ```
 
 The goal of the project is to generate MNIST Digits with 
