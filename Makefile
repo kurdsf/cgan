@@ -1,19 +1,18 @@
 CC:=cc
-CFLAGS:= -Wall -Wextra -std=gnu11
-DFLAGS:= -g -Og -fno-omit-frame-pointer
-RFLAGS:= -Ofast -DNDEBUG 
-SRCS:= nn.c mat.c
+CFLAGS:= -Wall -Wextra -lm -lgsl -lgslcblas 
+DFLAGS:= $(CFLAGS) -g -O0 -fno-omit-frame-pointer -fsanitize=undefined,address
+RFLAGS:= $(CFLAGS) -Ofast -DNDEBUG 
+SRCS:= nn.c 
 
-.PHONY: test release debug unzip zip clean
 
 release:
-	$(CC) $(CFLAGS) $(RFLAGS) $(SRCS) cgan.c -lm -o cgan
+	$(CC) nn.c cgan.c -o cgan $(RFLAGS)
 
 debug:
-	$(CC) $(CFLAGS) $(DFLAGS) $(SRCS) cgan.c -lm -o cgan
+	$(CC) nn.c cgan.c -o cgan $(DFLAGS)
 
 test: 
-	$(CC) $(CFLAGS) $(DFLAGS) $(SRCS) test.c -lm -o test
+	$(CC) nn.c test.c -o test $(DFLAGS)
 	./test
 	-rm test
 
@@ -22,8 +21,8 @@ unzip:
 	rm data.zip
 
 zip:
-	zip data.zip mnist*.csv
-	rm mnist* 
+	zip data.zip train-*
+	rm train-*
 
 
 clean:

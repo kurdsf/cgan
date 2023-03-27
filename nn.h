@@ -1,23 +1,34 @@
 #ifndef NN_H
 #define NN_H
 
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_vector.h>
 #include <stddef.h>
-
-#include "mat.h"
 
 // the learning rate.
 // change and recompile as needed.
 #define LR 0.1L
 
 typedef struct {
-  mat_t *w1;
-  mat_t *w2;
+  size_t isize;
+  size_t osize;
+  size_t hsize;
+  gsl_vector *X_h;
+  gsl_vector *O_h;
+  gsl_vector *X_o;
+  gsl_vector *O_o;
+  gsl_vector *e1;
+  gsl_vector *e2;
+  gsl_matrix *w1;
+  gsl_matrix *w2;
 } nn_t;
 
-nn_t *new_nn(size_t isize, size_t hsize, size_t osize);
+nn_t new_nn(size_t isize, size_t hsize, size_t osize);
 // Returns the error
-scalar_t nn_train(nn_t *nn, const vec_t *inputs, const vec_t *labels);
-void free_nn(nn_t *nn);
+void nn_forward(nn_t nn, const gsl_vector *input);
+void nn_backward(nn_t nn, const gsl_vector *label);
+
+void nn_free(nn_t nn);
 void nn_write(const char *path, const nn_t *nn);
 // ATTENTION:
 // This function DOES NOT PERFORM ANY KIND OF SANITY CHECKS.

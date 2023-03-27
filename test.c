@@ -1,58 +1,65 @@
-#include "mat.h"
 #include "nn.h"
 #include "utest.h"
+#include <assert.h>
 #include <stdlib.h>
+#include <time.h>
 
-UTEST(mat_h, vec_mat_mul) {
-  for (size_t i = 0; i < 100; i++) {
-    vec_t *x = new_vec(i);
-    mat_t *A = new_mat(i, i);
-    vec_t *b = new_vec(i);
-    for (size_t j = 0; j < (x->n); j++) {
-      (x->data)[j] = (scalar_t)drand48();
-      for (size_t k = 0; k < (A->n); k++) {
-        if (k == j) {
-          (A->data)[(A->m) * j + k] = 1.0L;
-        } else {
-          (A->data)[(A->m) * j + k] = 0.0L;
-        }
-      }
-    }
+/* This has to be refactored to use GPL later on.
+#define TRAIN_SIZE 1000
+#define MAX_ERR 0.01L
 
-    mat_vec_mul(b, A, x);
-
-    for (size_t j = 0; j < (b->n); j++) {
-      ASSERT_EQ((b->data)[j], (x->data)[j]);
-    }
-
-    free_vec(x);
-    free_mat(A);
-    free_vec(b);
+// check if the neural network is able to learn the binary operator op.
+// return the average error rate after some training.
+static scalar_t learn_bin_op(int (*op)(int, int)) {
+  srand(time(NULL));
+  nn_t *nn = new_nn(2, 4, 1);
+  for (size_t i = 0; i < TRAIN_SIZE; i++) {
+    // generate a either 0 or 1.
+    vec_t *data = new_vec(2);
+    vec_t *label = new_vec(1);
+    int a = rand() % 2;
+    int b = rand() % 2;
+    (data->data)[0] = a;
+    (data->data)[1] = b;
+    (label->data)[0] = op(a, b);
+    nn_train(nn, data, label);
+    free_vec(data);
+    free_vec(label);
   }
 
-  vec_t *x = new_vec(3);
-  mat_t *A = new_mat(2, 3);
-  vec_t *b = new_vec(2);
+  // after we have trained our neural network,
+  // compute the average error
+  scalar_t avg_err = 0.0F;
+  assert(TRAIN_SIZE >= 10);
+  for (size_t i = 0; i < 10; i++) {
+    // generate a either 0 or 1.
+    vec_t *data = new_vec(2);
+    vec_t *label = new_vec(1);
+    int a = rand() % 2;
+    int b = rand() % 2;
+    (data->data)[0] = a;
+    (data->data)[1] = b;
+    (label->data)[0] = op(a, b);
+    avg_err += nn_train(nn, data, label);
+    free_vec(data);
+    free_vec(label);
+  }
+  free_nn(nn);
+  return avg_err;
+}
 
-  (x->data)[0] = 3.0L;
-  (x->data)[1] = 2.1L;
-  (x->data)[2] = 0.0L;
+static int ixor(int a, int b) { return a ^ b; }
+static int iand(int a, int b) { return a && b; }
 
-  (A->data)[2 * 0 + 0] = 1.2L;
-  (A->data)[2 * 0 + 1] = 0.4L;
-  (A->data)[2 * 1 + 0] = 0.0L;
-  (A->data)[2 * 1 + 1] = 0.2L;
-  (A->data)[2 * 2 + 0] = -1.0L;
-  (A->data)[2 * 2 + 1] = 3.3L;
+UTEST(nn, nn_xor) {
+  scalar_t err = learn_bin_op(&ixor);
+  ASSERT_LT(err, MAX_ERR);
+}
 
-  mat_vec_mul(b, A, x);
-
-  ASSERT_EQ((b->data)[0], 4.44L);
-  ASSERT_EQ((b->data)[1], 0.42L);
-
-  free_vec(x);
-  free_mat(A);
-  free_vec(b);
+UTEST(nn, nn_and) {
+  scalar_t err = learn_bin_op(&iand);
+  ASSERT_LT(err, MAX_ERR);
 }
 
 UTEST_MAIN();
+*/
