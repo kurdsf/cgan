@@ -6,11 +6,13 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-static void map_gsl_block(gsl_block out, gsl_block in, double (*f)(double));
+static double sigmoid(double x);
+static void map_gsl_block(gsl_block *out, gsl_block *in, double (*f)(double));
 static void mat_vec_mul(gsl_vector *out, const gsl_matrix *A,
                         const gsl_vector *x);
 
@@ -44,6 +46,14 @@ nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
   }
 
   return res;
+}
+
+void nn_forward(nn_t *nn, const gsl_vector *input) {
+  assert(nn->isize == input->size);
+  mat_vec_mul(nn->X_h, nn->w1, input);
+  map_gsl_block(nn->O_h->block, nn->X_h->block, &sigmoid);
+  mat_vec_mul(nn->X_o, nn->w2, nn->O_h);
+  map_gsl_block(nn->O_o->block, nn->X_o->block, &sigmoid);
 }
 
 void nn_write(const char *path, const nn_t *nn) {
@@ -154,10 +164,12 @@ nn_t *nn_read(const char *path) {
   return nn;
 }
 
-static void map_gsl_block(gsl_block out, gsl_block in, double (*f)(double)) {
-  assert(out.size == in.size);
-  for (size_t i = 0; i < out.size; i++) {
-    out.data[i] = f(in.data[i]);
+static double sigmoid(double x) { return 1 / (1 + exp(-x)); }
+
+static void map_gsl_block(gsl_block *out, gsl_block *in, double (*f)(double)) {
+  assert(out->size == in->size);
+  for (size_t i = 0; i < out->size; i++) {
+    (out->data)[i] = f((in->data)[i]);
   }
 }
 
