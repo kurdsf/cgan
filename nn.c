@@ -1,6 +1,7 @@
 #include "nn.h"
 #include <assert.h>
 #include <errno.h>
+#include <gsl/gsl_blas.h>
 #include <gsl/gsl_block.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
@@ -10,6 +11,8 @@
 #include <time.h>
 
 static void map_gsl_block(gsl_block out, gsl_block in, double (*f)(double));
+static void mat_vec_mul(gsl_vector *out, const gsl_matrix *A,
+                        const gsl_vector *x);
 
 nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
   nn_t *res = malloc(sizeof(nn_t));
@@ -156,6 +159,11 @@ static void map_gsl_block(gsl_block out, gsl_block in, double (*f)(double)) {
   for (size_t i = 0; i < out.size; i++) {
     out.data[i] = f(in.data[i]);
   }
+}
+
+static void mat_vec_mul(gsl_vector *out, const gsl_matrix *A,
+                        const gsl_vector *x) {
+  gsl_blas_dgemv(CblasNoTrans, 1.0f, A, x, 0.0f, out);
 }
 
 void nn_free(nn_t *nn) {
