@@ -1,65 +1,26 @@
 #include "nn.h"
 #include "utest.h"
-#include <assert.h>
-#include <stdlib.h>
-#include <time.h>
+#include <gsl/gsl_matrix.h>
+#include <stdio.h>
 
-/* This has to be refactored to use GPL later on.
-#define TRAIN_SIZE 1000
-#define MAX_ERR 0.01L
+#define NN_PATH "nn_test"
 
-// check if the neural network is able to learn the binary operator op.
-// return the average error rate after some training.
-static scalar_t learn_bin_op(int (*op)(int, int)) {
-  srand(time(NULL));
-  nn_t *nn = new_nn(2, 4, 1);
-  for (size_t i = 0; i < TRAIN_SIZE; i++) {
-    // generate a either 0 or 1.
-    vec_t *data = new_vec(2);
-    vec_t *label = new_vec(1);
-    int a = rand() % 2;
-    int b = rand() % 2;
-    (data->data)[0] = a;
-    (data->data)[1] = b;
-    (label->data)[0] = op(a, b);
-    nn_train(nn, data, label);
-    free_vec(data);
-    free_vec(label);
-  }
-
-  // after we have trained our neural network,
-  // compute the average error
-  scalar_t avg_err = 0.0F;
-  assert(TRAIN_SIZE >= 10);
+UTEST(nn, io_routines_of_nn) {
   for (size_t i = 0; i < 10; i++) {
-    // generate a either 0 or 1.
-    vec_t *data = new_vec(2);
-    vec_t *label = new_vec(1);
-    int a = rand() % 2;
-    int b = rand() % 2;
-    (data->data)[0] = a;
-    (data->data)[1] = b;
-    (label->data)[0] = op(a, b);
-    avg_err += nn_train(nn, data, label);
-    free_vec(data);
-    free_vec(label);
+    nn_t *nn1 = new_nn(i, i / 2, i % 2);
+    nn_write(NN_PATH, nn1);
+    nn_t *nn2 = nn_read(NN_PATH);
+    ASSERT_TRUE(gsl_matrix_equal(nn1->w1, nn2->w1));
+    ASSERT_TRUE(gsl_matrix_equal(nn1->w2, nn2->w2));
+    // we do not check if any other fields are equal,
+    // for instance nn1->X_o, since these are uninitialized
+    // because we haven't called nn_forward yet.
+    nn_free(nn1);
+    nn_free(nn2);
   }
-  free_nn(nn);
-  return avg_err;
-}
-
-static int ixor(int a, int b) { return a ^ b; }
-static int iand(int a, int b) { return a && b; }
-
-UTEST(nn, nn_xor) {
-  scalar_t err = learn_bin_op(&ixor);
-  ASSERT_LT(err, MAX_ERR);
-}
-
-UTEST(nn, nn_and) {
-  scalar_t err = learn_bin_op(&iand);
-  ASSERT_LT(err, MAX_ERR);
+  if (remove(NN_PATH) == -1) {
+    perror("remove: " NN_PATH);
+  }
 }
 
 UTEST_MAIN();
-*/

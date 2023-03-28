@@ -69,7 +69,7 @@ static bool get_next_image(gsl_vector *inputs, gsl_vector *labels) {
 }
 
 int main() {
-  nn_t nn = new_nn(28 * 28, 200, 10);
+  nn_t *nn = new_nn(28 * 28, 200, 10);
 
   gsl_vector *inputs = gsl_vector_alloc(28 * 28);
   gsl_vector *labels = gsl_vector_alloc(10);

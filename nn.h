@@ -23,12 +23,12 @@ typedef struct {
   gsl_matrix *w2;
 } nn_t;
 
-nn_t new_nn(size_t isize, size_t hsize, size_t osize);
+nn_t *new_nn(size_t isize, size_t hsize, size_t osize);
 // Returns the error
-void nn_forward(nn_t nn, const gsl_vector *input);
-void nn_backward(nn_t nn, const gsl_vector *label);
+void nn_forward(nn_t *nn, const gsl_vector *input);
+void nn_backward(nn_t *nn, const gsl_vector *label);
 
-void nn_free(nn_t nn);
+void nn_free(nn_t *nn);
 void nn_write(const char *path, const nn_t *nn);
 // ATTENTION:
 // This function DOES NOT PERFORM ANY KIND OF SANITY CHECKS.
