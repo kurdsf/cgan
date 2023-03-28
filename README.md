@@ -1,6 +1,6 @@
-## cgan - a simple GAN written in C 
+## cgan - a simple GAN written in C     
 ![Lines of code](https://img.shields.io/tokei/lines/github/kurdsf/cgan?style=plastic)
-**ATTENTION:** This project is currently WIP.
+#### ATTENTION: This project is currently WIP.
 
 ### Requirements
 This project uses the GNU Scientific Library (GSL). 
