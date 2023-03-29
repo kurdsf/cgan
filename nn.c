@@ -71,6 +71,34 @@ void nn_backward(nn_t *nn, const gsl_vector *labels) {
 
   // e2 = transpose(w2) * e1.
   gsl_blas_dgemv(CblasTrans, 1.0f, nn->w2, nn->e1, 0.0f, nn->e2);
+
+  gsl_matrix_view input_T =
+      gsl_matrix_view_vector(nn->input, 1, nn->input->size);
+  gsl_matrix_view O_h_T = gsl_matrix_view_vector(nn->O_h, 1, nn->O_h->size);
+
+  // w2 -= - LR * e1 * dsigmoid(O_o) * O_h_T <=> w2 = w2 + LR * e1 *
+  // dsigmoid(O_o) * O_h_T
+  gsl_matrix_view Y_1; // will be e1 * dsigmoid(O_o)
+  gsl_vector *vec_Y_1 = gsl_vector_alloc(nn->O_o->size);
+  map_gsl_block(vec_Y_1->block, nn->O_o->block, &dsigmoid);
+  gsl_vector_mul(vec_Y_1, nn->e1);
+  Y_1 = gsl_matrix_view_vector(vec_Y_1, vec_Y_1->size, 1);
+
+  gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, LR, &(Y_1.matrix), &(O_h_T.matrix),
+                 1.0, nn->w2);
+  gsl_vector_free(vec_Y_1);
+
+  // w1 -= - LR * e2 * dsigmoid(O_h) * input_T <=> w1 = w1 + LR * e2 *
+  // dsigmoid(O_h) * input_T
+  gsl_matrix_view Y_2; // will be e2 * dsigmoid(O_h)
+  gsl_vector *vec_Y_2 = gsl_vector_alloc(nn->O_h->size);
+  map_gsl_block(vec_Y_2->block, nn->O_h->block, &dsigmoid);
+  gsl_vector_mul(vec_Y_2, nn->e2);
+  Y_2 = gsl_matrix_view_vector(vec_Y_2, vec_Y_2->size, 1);
+
+  gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, LR, &(Y_2.matrix),
+                 &(input_T.matrix), 1.0, nn->w1);
+  gsl_vector_free(vec_Y_2);
 }
 
 void nn_write(const char *path, const nn_t *nn) {
