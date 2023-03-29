@@ -5,6 +5,10 @@ RFLAGS:= $(CFLAGS) -Ofast -DNDEBUG
 SRCS:= nn.c 
 
 
+.PHONY: release debug unzip zip clean
+.DELETE_ON_ERROR: test 
+
+
 release:
 	$(CC) nn.c cgan.c -o cgan $(RFLAGS)
 
@@ -26,7 +30,7 @@ zip:
 
 
 clean:
-	-rm cgan
+	-rm cgan test
 
 
 
