@@ -9,10 +9,16 @@
 // change and recompile as needed.
 #define LR 0.1L
 
+// if we add an field to nn_t, we have to modify
+// nn_write and nn_read. Thus these functions check if
+// NFIELDS_OF_NN is the value they expect.
+#define NFIELDS_OF_NN 12
+
 typedef struct {
   size_t isize;
   size_t osize;
   size_t hsize;
+  gsl_vector *input;
   gsl_vector *X_h;
   gsl_vector *O_h;
   gsl_vector *X_o;

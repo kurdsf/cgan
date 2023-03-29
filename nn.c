@@ -12,6 +12,7 @@
 #include <time.h>
 
 static double sigmoid(double x);
+static double dsigmoid(double x);
 static void map_gsl_block(gsl_block *out, gsl_block *in, double (*f)(double));
 static void mat_vec_mul(gsl_vector *out, const gsl_matrix *A,
                         const gsl_vector *x);
@@ -23,9 +24,11 @@ nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
     exit(1);
   }
 
+  _Static_assert(NFIELDS_OF_NN == 12, "new_nn expects NFIELDS_OF_NN to be 12");
   res->isize = isize;
   res->hsize = hsize;
   res->osize = osize;
+  res->input = gsl_vector_alloc(isize);
   res->X_h = gsl_vector_alloc(hsize);
   res->O_h = gsl_vector_alloc(hsize);
   res->X_o = gsl_vector_alloc(osize);
@@ -50,13 +53,29 @@ nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
 
 void nn_forward(nn_t *nn, const gsl_vector *input) {
   assert(nn->isize == input->size);
+  // save input for nn_backward.
+  gsl_vector_memcpy(nn->input, input);
+
   mat_vec_mul(nn->X_h, nn->w1, input);
   map_gsl_block(nn->O_h->block, nn->X_h->block, &sigmoid);
   mat_vec_mul(nn->X_o, nn->w2, nn->O_h);
   map_gsl_block(nn->O_o->block, nn->X_o->block, &sigmoid);
 }
 
+void nn_backward(nn_t *nn, const gsl_vector *labels) {
+  assert(nn->osize == labels->size);
+  for (size_t i = 0; i < nn->osize; i++) {
+    double diff = gsl_vector_get(labels, i) - gsl_vector_get(nn->O_o, i);
+    gsl_vector_set(nn->e1, i, diff);
+  }
+
+  // e2 = transpose(w2) * e1.
+  gsl_blas_dgemv(CblasTrans, 1.0f, nn->w2, nn->e1, 0.0f, nn->e2);
+}
+
 void nn_write(const char *path, const nn_t *nn) {
+  _Static_assert(NFIELDS_OF_NN == 12,
+                 "nn_write expects NFIELDS_OF_NN to be 12");
   FILE *f = fopen(path, "w");
   if (f == NULL) {
     fprintf(stderr, "nn_write: %s: %s\n", path, strerror(errno));
@@ -80,6 +99,9 @@ void nn_write(const char *path, const nn_t *nn) {
     exit(1);
   }
 
+  if (gsl_vector_fwrite(f, nn->input) == GSL_EFAILED) {
+    fprintf(stderr, "nn_write: %s: %s\n", path, gsl_strerror(GSL_EFAILED));
+  }
   if (gsl_vector_fwrite(f, nn->X_h) == GSL_EFAILED) {
     fprintf(stderr, "nn_write: %s: %s\n", path, gsl_strerror(GSL_EFAILED));
   }
@@ -109,6 +131,7 @@ void nn_write(const char *path, const nn_t *nn) {
 }
 
 nn_t *nn_read(const char *path) {
+  _Static_assert(NFIELDS_OF_NN == 12, "nn_read expects NFIELDS_OF_NN to be 12");
   FILE *f = fopen(path, "r");
   if (f == NULL) {
     fprintf(stderr, "nn_read: %s: %s\n", path, strerror(errno));
@@ -135,6 +158,9 @@ nn_t *nn_read(const char *path) {
 
   nn_t *nn = new_nn(isize, hsize, osize);
 
+  if (gsl_vector_fread(f, nn->input) == GSL_EFAILED) {
+    fprintf(stderr, "nn_read: %s: %s\n", path, gsl_strerror(GSL_EFAILED));
+  }
   if (gsl_vector_fread(f, nn->X_h) == GSL_EFAILED) {
     fprintf(stderr, "nn_read: %s: %s\n", path, gsl_strerror(GSL_EFAILED));
   }
@@ -165,6 +191,7 @@ nn_t *nn_read(const char *path) {
 }
 
 static double sigmoid(double x) { return 1 / (1 + exp(-x)); }
+static double dsigmoid(double x) { return sigmoid(x) * (1 - sigmoid(x)); }
 
 static void map_gsl_block(gsl_block *out, gsl_block *in, double (*f)(double)) {
   assert(out->size == in->size);
@@ -179,6 +206,8 @@ static void mat_vec_mul(gsl_vector *out, const gsl_matrix *A,
 }
 
 void nn_free(nn_t *nn) {
+  _Static_assert(NFIELDS_OF_NN == 12, "nn_free expects NFIELDS_OF_NN to be 12");
+  gsl_vector_free(nn->input);
   gsl_vector_free(nn->X_h);
   gsl_vector_free(nn->O_h);
   gsl_vector_free(nn->X_o);
