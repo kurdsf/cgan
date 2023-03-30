@@ -25,8 +25,8 @@ unzip:
 	rm data.zip
 
 zip:
-	zip data.zip train-*
-	rm train-*
+	zip data.zip mnist_*
+	rm mnist_*
 
 
 clean:
