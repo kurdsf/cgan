@@ -11,8 +11,8 @@
 #include <string.h>
 #include <time.h>
 
-static double sigmoid(double x);
-static double dsigmoid(double x);
+static inline double sigmoid(double x);
+static inline double dsigmoid(double x);
 static void map_gsl_block(gsl_block *out, gsl_block *in, double (*f)(double));
 static void mat_vec_mul(gsl_vector *out, const gsl_matrix *A,
                         const gsl_vector *x);
@@ -227,8 +227,10 @@ nn_t *nn_read(const char *path) {
   return nn;
 }
 
-static double sigmoid(double x) { return 1 / (1 + exp(-x)); }
-static double dsigmoid(double x) { return sigmoid(x) * (1 - sigmoid(x)); }
+static inline double sigmoid(double x) { return 1 / (1 + exp(-x)); }
+static inline double dsigmoid(double x) {
+  return sigmoid(x) * (1 - sigmoid(x));
+}
 
 static void map_gsl_block(gsl_block *out, gsl_block *in, double (*f)(double)) {
   assert(out->size == in->size);
