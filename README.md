@@ -19,7 +19,7 @@ This project requires make and zip.
 The goal of the project is to generate MNIST Digits with 
 a [GAN](https://en.wikipedia.org/wiki/Generative_adversarial_network).
 
-The MNIST Dataset we use is taken from [here](https://learn.microsoft.com/en-us/azure/open-datasets/dataset-mnist?tabs=azure-storage).
+The MNIST Dataset we use is taken from [here](https://pjreddie.com/projects/mnist-in-csv/).
 
 Currently we only implemented a simple neural network '''library'''.
 
