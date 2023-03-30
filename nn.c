@@ -35,8 +35,8 @@ nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
   res->O_o = gsl_vector_alloc(osize);
   res->e1 = gsl_vector_alloc(osize);
   res->e2 = gsl_vector_alloc(hsize);
-  res->w1 = gsl_matrix_alloc(isize, hsize);
-  res->w2 = gsl_matrix_alloc(hsize, isize);
+  res->w1 = gsl_matrix_alloc(hsize, isize);
+  res->w2 = gsl_matrix_alloc(osize, hsize);
 
   srand48(time(NULL));
 
@@ -99,6 +99,15 @@ void nn_backward(nn_t *nn, const gsl_vector *labels) {
   gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, LR, &(Y_2.matrix),
                  &(input_T.matrix), 1.0, nn->w1);
   gsl_vector_free(vec_Y_2);
+}
+
+double nn_error(nn_t *nn) {
+  double err = 0.0F;
+  for (size_t i = 0; i < nn->e1->size; i++) {
+    err += gsl_vector_get(nn->e1, i) * gsl_vector_get(nn->e1, i);
+  }
+  err /= nn->e1->size;
+  return err;
 }
 
 void nn_write(const char *path, const nn_t *nn) {

@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NN_ITERATIONS 100
-#define NN_MAX_AVG_ERR 0.2
+#define NN_ITERATIONS 10000
+#define NN_MAX_AVG_ERR 0.01
 
 static double vector_avg(const gsl_vector *x) {
   return gsl_vector_sum(x) / ((double)x->size);
@@ -15,7 +15,7 @@ static double vector_avg(const gsl_vector *x) {
 UTEST(nn, learn_xor) {
   gsl_vector *input = gsl_vector_alloc(2);
   gsl_vector *label = gsl_vector_alloc(1);
-  nn_t *nn = new_nn(2, 3, 1);
+  nn_t *nn = new_nn(2, 2, 1);
   for (size_t i = 0; i < NN_ITERATIONS; i++) {
     gsl_vector_set(input, 0, (double)(rand() % 2));
     gsl_vector_set(input, 0, (double)(rand() % 2));
@@ -35,10 +35,10 @@ UTEST(nn, learn_xor) {
                    (double)(((int)gsl_vector_get(input, 0)) ^
                             ((int)gsl_vector_get(input, 1))));
     nn_backward(nn, label);
-    gsl_vector_set(errors, i, vector_avg(nn->e1));
+    gsl_vector_set(errors, i, nn_error(nn));
   }
 
-  ASSERT_LE(vector_avg(errors), NN_MAX_AVG_ERR);
+  ASSERT_LT(vector_avg(errors), NN_MAX_AVG_ERR);
 
   gsl_vector_free(errors);
   gsl_vector_free(input);
