@@ -6,7 +6,7 @@
 ### Requirements
 This project uses the GNU Scientific Library (GSL). 
 Installation instructions can be found [here](https://www.gnu.org/software/gsl/#downloading).
-This project only works under linux and requires make.
+This project requires make and zip.
 
 ### Quick Start
 ```bash 
