@@ -53,8 +53,10 @@ nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
 
 void nn_forward(nn_t *nn, const gsl_vector *input) {
   assert(nn->isize == input->size);
-  // save input for nn_backward.
-  gsl_vector_memcpy(nn->input, input);
+  if (nn->input != input) {
+    // save input for nn_backward.
+    gsl_vector_memcpy(nn->input, input);
+  }
 
   mat_vec_mul(nn->X_h, nn->w1, input);
   map_gsl_block(nn->O_h->block, nn->X_h->block, &sigmoid);
@@ -69,9 +71,13 @@ void nn_backward(nn_t *nn, const gsl_vector *labels) {
     gsl_vector_set(nn->e1, i, diff);
   }
 
-  // e2 = transpose(w2) * e1.
+  // e2 = transpose(w2) * e1
   gsl_blas_dgemv(CblasTrans, 1.0f, nn->w2, nn->e1, 0.0f, nn->e2);
 
+  nn_backward_with_e1_and_e2_set(nn);
+}
+
+void nn_backward_with_e1_and_e2_set(nn_t *nn) {
   gsl_matrix_view input_T =
       gsl_matrix_view_vector(nn->input, 1, nn->input->size);
   gsl_matrix_view O_h_T = gsl_matrix_view_vector(nn->O_h, 1, nn->O_h->size);

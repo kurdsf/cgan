@@ -32,6 +32,7 @@ typedef struct {
 nn_t *new_nn(size_t isize, size_t hsize, size_t osize);
 void nn_forward(nn_t *nn, const gsl_vector *input);
 void nn_backward(nn_t *nn, const gsl_vector *label);
+void nn_backward_with_e1_and_e2_set(nn_t *nn);
 double nn_error(nn_t *nn);
 
 void nn_free(nn_t *nn);
