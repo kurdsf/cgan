@@ -1,25 +1,19 @@
 CC:=cc
-CFLAGS:= -Wall -Wextra -lm -lgsl -lgslcblas 
-DFLAGS:= $(CFLAGS) -g -O0 -fno-omit-frame-pointer -fsanitize=undefined,address
-RFLAGS:= $(CFLAGS) -Ofast -DNDEBUG 
-SRCS:= nn.c 
+CFLAGS:= -Wall -Wextra -lm -lgsl -lgslcblas -g -O0 -fsanitize=undefined,address
 
 
-.PHONY: release debug unzip zip clean
+.PHONY: unzip zip clean
 .DELETE_ON_ERROR: test 
 
+nn.c: gan.o
 
-release:
-	$(CC) nn.c cgan.c -o cgan $(RFLAGS)
+mnist: mnist.o nn.o gan.o
+	$(CC) nn.o gan.o -o $@
 
-debug:
-	$(CC) nn.c cgan.c -o cgan $(DFLAGS)
-
-test: 
-	$(CC) nn.c test.c -o test $(DFLAGS)
+test: test.o nn.o gan.o
+	$(CC) nn.o gan.c -o $@
 	./test
 	-rm test
-
 unzip: 
 	unzip data.zip
 	rm data.zip
@@ -28,9 +22,8 @@ zip:
 	zip data.zip mnist_*
 	rm mnist_*
 
-
 clean:
-	-rm cgan test
+	-rm *.o mnist 
 
 
 
