@@ -1,17 +1,20 @@
 CC:=cc
-CFLAGS:= -Wall -Wextra -lm -lgsl -lgslcblas -g -O0 -fsanitize=undefined,address
+CFLAGS:= -Wall -Wextra -O0 -fsanitize=undefined,address
+LDFLAGS:= $(CFLAGS) -lm -lgsl -lgslcblas
 
 
 .PHONY: unzip zip clean
 .DELETE_ON_ERROR: test 
 
+all: test mnist
+
 nn.c: gan.o
 
 mnist: mnist.o nn.o gan.o
-	$(CC) nn.o gan.o -o $@
+	$(CC) $(LDFLAGS) $^ -o $@
 
 test: test.o nn.o gan.o
-	$(CC) nn.o gan.c -o $@
+	$(CC) $(LDFLAGS) $^ -o $@
 	./test
 	-rm test
 unzip: 
