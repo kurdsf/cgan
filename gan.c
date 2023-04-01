@@ -19,6 +19,7 @@ gan_t *new_gan(size_t isize, void (*next_sample)(gsl_vector *)) {
   }
 
   assert(isize != 0);
+  res->isize = isize;
   res->next_sample = next_sample;
   res->gen = new_nn(isize, isize / 2 + 1, isize);
   res->dis = new_nn(isize, isize, 1);
@@ -69,6 +70,10 @@ static void get_real_or_fake_sample(gan_t *gan, double *is_real) {
 
 gsl_vector *gan_gen_sample(gan_t *gan) {
   for (size_t i = 0; i < (gan->isize); i++) {
+    if (gan->gen->input->size <= i) {
+      puts("gotcha");
+      exit(1);
+    }
     gsl_vector_set(gan->gen->input, i, drand48());
   }
   nn_forward(gan->gen, gan->gen->input);
