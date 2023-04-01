@@ -1,5 +1,6 @@
 #include "gan.h"
 #include "nn.h"
+#include <assert.h>
 #include <errno.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_vector.h>
@@ -17,8 +18,9 @@ gan_t *new_gan(size_t isize, void (*next_sample)(gsl_vector *)) {
     exit(1);
   }
 
+  assert(isize != 0);
   res->next_sample = next_sample;
-  res->gen = new_nn(isize, isize / 2, isize);
+  res->gen = new_nn(isize, isize / 2 + 1, isize);
   res->dis = new_nn(isize, isize, 1);
   return res;
 }
