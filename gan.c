@@ -47,7 +47,7 @@ static void train_gen(gan_t *gan) {
   for (size_t i = 0; i < GEN_TRAINING_NSAMPLES; i++) {
     gsl_vector_memcpy(gan->dis->input, gan_gen_sample(gan));
     nn_forward(gan->dis, gan->dis->input);
-    // we do nn_backward by hand here.
+    // we set the errors by hand here
     gsl_vector_set(gan->dis->e1, 0, 0.0 - gsl_vector_get(gan->dis->O_o, 0));
     gsl_blas_dgemv(CblasTrans, 1.0f, gan->dis->w2, gan->dis->e1, 0.0f,
                    gan->dis->e2);
