@@ -1,3 +1,4 @@
+#include "gan.h"
 #include "nn.h"
 #include "utest.h"
 #include <gsl/gsl_matrix.h>
@@ -64,6 +65,29 @@ UTEST(nn, io_routines_of_nn) {
   if (remove(NN_PATH) == -1) {
     perror("remove: " NN_PATH);
   }
+}
+
+// generate even numbers from 0 to 100.
+void next_sample(gsl_vector *input) {
+  gsl_vector_set(input, 0, (double)(2 * (rand() % 101)));
+}
+
+// the GAN should learn to generate even numbers
+UTEST(gan, learn_even) {
+  gan_t *gan = new_gan(1, &next_sample);
+  gan_train(gan);
+  gan_train(gan);
+  // at least 90% of the generated numbers should be even.
+  double nevens = 0;
+  for (size_t i = 0; i < 10; i++) {
+    gsl_vector *sample = gan_gen_sample(gan);
+    int num = (int)(gsl_vector_get(sample, 0));
+    if (num % 2 == 0)
+      nevens++;
+  }
+
+  gan_free(gan);
+  ASSERT_GT(nevens / 10, 0.9);
 }
 
 UTEST_MAIN();
