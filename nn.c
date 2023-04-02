@@ -11,6 +11,8 @@
 #include <string.h>
 #include <time.h>
 
+static inline double ReLU(double x);
+static inline double dReLU(double x);
 static inline double sigmoid(double x);
 static inline double dsigmoid(double x);
 static void map_gsl_block(gsl_block *out, gsl_block *in, double (*f)(double));
@@ -59,7 +61,7 @@ void nn_forward(nn_t *nn, const gsl_vector *input) {
   }
 
   mat_vec_mul(nn->X_h, nn->w1, input);
-  map_gsl_block(nn->O_h->block, nn->X_h->block, &sigmoid);
+  map_gsl_block(nn->O_h->block, nn->X_h->block, &ReLU);
   mat_vec_mul(nn->X_o, nn->w2, nn->O_h);
   map_gsl_block(nn->O_o->block, nn->X_o->block, &sigmoid);
 }
@@ -98,7 +100,7 @@ void nn_backward_with_e1_and_e2_set(nn_t *nn) {
   // dsigmoid(O_h) * input_T
   gsl_matrix_view Y_2; // will be e2 * dsigmoid(O_h)
   gsl_vector *vec_Y_2 = gsl_vector_alloc(nn->O_h->size);
-  map_gsl_block(vec_Y_2->block, nn->O_h->block, &dsigmoid);
+  map_gsl_block(vec_Y_2->block, nn->O_h->block, &dReLU);
   gsl_vector_mul(vec_Y_2, nn->e2);
   Y_2 = gsl_matrix_view_vector(vec_Y_2, vec_Y_2->size, 1);
 
@@ -232,6 +234,10 @@ nn_t *nn_read(const char *path) {
   fclose(f);
   return nn;
 }
+
+static inline double ReLU(double x) { return (x > 0) ? x : 0; }
+
+static inline double dReLU(double x) { return (x > 0) ? 1 : 0; }
 
 static inline double sigmoid(double x) { return 1 / (1 + exp(-x)); }
 static inline double dsigmoid(double x) {
