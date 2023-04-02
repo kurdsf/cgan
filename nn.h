@@ -8,6 +8,7 @@
 // the learning rate.
 // change and recompile as needed.
 #define LR 0.1L
+#define ___SOMETHING
 
 // if we add an field to nn_t, we have to modify
 // nn_write and nn_read. Thus these functions check if
