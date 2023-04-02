@@ -67,27 +67,49 @@ UTEST(nn, io_routines_of_nn) {
   }
 }
 
-// generate even numbers from 0 to 100.
 void next_sample(gsl_vector *input) {
-  gsl_vector_set(input, 0, (double)(2 * (rand() % 101)));
-}
-
-// the GAN should learn to generate even numbers
-UTEST(gan, learn_even) {
-  gan_t *gan = new_gan(1, &next_sample);
-  gan_train(gan);
-  gan_train(gan);
-  // at least 90% of the generated numbers should be even.
-  double nevens = 0;
   for (size_t i = 0; i < 10; i++) {
-    gsl_vector *sample = gan_gen_sample(gan);
-    int num = (int)(gsl_vector_get(sample, 0));
-    if (num % 2 == 0)
-      nevens++;
+    gsl_vector_set(input, i, 0);
   }
 
+  size_t nfields_set_to_one = 0;
+  while (nfields_set_to_one != 5) {
+    int index = rand() % 10;
+    if (gsl_vector_get(input, index) == 1.0) {
+      continue;
+    } else {
+      gsl_vector_set(input, index, 1.0);
+      nfields_set_to_one++;
+    }
+  }
+
+  assert(gsl_vector_sum(input) == 5.0);
+}
+
+#define GAN_TOLERANCE 0.1
+#define GAN_MAX_ERRROR 0.1
+
+UTEST(gan, gan_train) {
+  gan_t *gan = new_gan(10, &next_sample);
+
+  gan_train(gan);
+  gan_train(gan);
+  gan_train(gan);
+  gan_train(gan);
+
+  size_t ngan_was_correct = 0;
+
+  for (size_t i = 0; i < 10; i++) {
+    gsl_vector *sample = gan_gen_sample(gan);
+    double sum = gsl_vector_sum(sample);
+    if (fabs(sum - 5.0) <= GAN_TOLERANCE) {
+      ngan_was_correct++;
+    }
+  }
+
+  ASSERT_LT(ngan_was_correct / 10, GAN_MAX_ERRROR);
+
   gan_free(gan);
-  ASSERT_GT(nevens / 10, 0.9);
 }
 
 UTEST_MAIN();
