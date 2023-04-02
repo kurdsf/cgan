@@ -1,8 +1,10 @@
 #include "gan.h"
 #include "nn.h"
 #include "utest.h"
+#include <assert.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
