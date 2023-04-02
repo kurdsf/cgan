@@ -21,8 +21,9 @@ gan_t *new_gan(size_t isize, void (*next_sample)(gsl_vector *)) {
   assert(isize != 0);
   res->isize = isize;
   res->next_sample = next_sample;
-  res->gen = new_nn(isize, isize / 2 + 1, isize);
-  res->dis = new_nn(isize, isize, 1);
+  // the + 10 is for very small values of isize, namely the tests in test.c
+  res->gen = new_nn(isize, isize / 2 + 10, isize);
+  res->dis = new_nn(isize, isize / 2 + 10, 1);
   return res;
 }
 
@@ -49,12 +50,16 @@ static void train_gen(gan_t *gan) {
     nn_forward(gan->dis, gan->dis->input);
     // we set the errors by hand here
     gsl_vector_set(gan->dis->e1, 0, 0.0 - gsl_vector_get(gan->dis->O_o, 0));
+
     gsl_blas_dgemv(CblasTrans, 1.0f, gan->dis->w2, gan->dis->e1, 0.0f,
                    gan->dis->e2);
-    gsl_blas_dgemv(CblasTrans, 1.0f, gan->dis->w2, gan->dis->e2, 0.0f,
+
+    gsl_blas_dgemv(CblasTrans, 1.0f, gan->dis->w1, gan->dis->e2, 0.0f,
                    gan->gen->e1);
-    gsl_blas_dgemv(CblasTrans, 1.0f, gan->gen->w2, gan->gen->e2, 0.0f,
-                   gan->gen->e1);
+
+    gsl_blas_dgemv(CblasTrans, 1.0f, gan->gen->w2, gan->gen->e1, 0.0f,
+                   gan->gen->e2);
+
     nn_backward_with_e1_and_e2_set(gan->gen);
   }
 }
@@ -70,12 +75,9 @@ static void get_real_or_fake_sample(gan_t *gan, double *is_real) {
 
 gsl_vector *gan_gen_sample(gan_t *gan) {
   for (size_t i = 0; i < (gan->isize); i++) {
-    if (gan->gen->input->size <= i) {
-      puts("gotcha");
-      exit(1);
-    }
-    gsl_vector_set(gan->gen->input, i, drand48());
+    gsl_vector_set(gan->gen->input, i, drand48() * GAN_NOISE_MULTIPLIER);
   }
+
   nn_forward(gan->gen, gan->gen->input);
 
   return gan->gen->O_o;
