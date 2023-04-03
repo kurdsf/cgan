@@ -233,7 +233,14 @@ nn_t *nn_read(const char *path) {
   return nn;
 }
 
-static inline double sigmoid(double x) { return 1 / (1 + exp(-x)); }
+static inline double sigmoid(double x) {
+  double res = 1 / (1 + exp(-x));
+  if (errno != 0) {
+    perror("sigmoid");
+    exit(1);
+  }
+  return res;
+}
 static inline double dsigmoid(double x) {
   return sigmoid(x) * (1 - sigmoid(x));
 }
