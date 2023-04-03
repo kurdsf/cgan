@@ -89,7 +89,7 @@ void next_sample(gsl_vector *input) {
 }
 
 #define GAN_TOLERANCE 0.1
-#define GAN_MAX_ERRROR 0.1
+#define GAN_MIN_ACC 0.9
 
 UTEST(gan, gan_train) {
   gan_t *gan = new_gan(10, &next_sample);
@@ -107,9 +107,12 @@ UTEST(gan, gan_train) {
     if (fabs(sum - 5.0) <= GAN_TOLERANCE) {
       ngan_was_correct++;
     }
+
+    fputs("the sample:", stderr);
+    gsl_vector_fprintf(stderr, sample, "%f");
   }
 
-  ASSERT_LT(ngan_was_correct / 10, GAN_MAX_ERRROR);
+  ASSERT_GT(ngan_was_correct / 10, GAN_MIN_ACC);
 
   gan_free(gan);
 }
