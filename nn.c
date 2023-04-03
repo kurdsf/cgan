@@ -9,7 +9,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 static inline double sigmoid(double x);
 static inline double dsigmoid(double x);
@@ -37,8 +36,6 @@ nn_t *new_nn(size_t isize, size_t hsize, size_t osize) {
   res->e2 = gsl_vector_alloc(hsize);
   res->w1 = gsl_matrix_alloc(hsize, isize);
   res->w2 = gsl_matrix_alloc(osize, hsize);
-
-  srand48(time(NULL));
 
   for (size_t i = 0; i < (res->w1->block->size); i++) {
     (res->w1->block->data)[i] = drand48();
@@ -236,7 +233,7 @@ nn_t *nn_read(const char *path) {
 static inline double sigmoid(double x) {
   double res = 1 / (1 + exp(-x));
   if (errno != 0) {
-    perror("sigmoid");
+    fprintf(stderr, "sigmoid: %s: %f.\n", strerror(errno), x);
     exit(1);
   }
   return res;

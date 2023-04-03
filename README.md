@@ -15,6 +15,15 @@ This project requires make and zip.
         && make 
 ```
 
+### Note about testing the GAN
+The test on the GAN do not seem to work 100% of the time.
+This is mainly due to the random number generator being initialized with time(NULL),
+thus the initial weights are different each time you run the program.
+If you encounter a failure, try again, and / or 
+tweak the parameters in gan.h and / or nn.h.
+
+
+
 The goal of the project is to generate MNIST Digits with 
 a [GAN](https://en.wikipedia.org/wiki/Generative_adversarial_network).
 
