@@ -1,6 +1,6 @@
 CC:=cc
-CFLAGS:= -Wall -Wextra -O0 -fsanitize=undefined,address
-LDFLAGS:= $(CFLAGS) -lm -lgsl -lgslcblas
+CFLAGS:= -Wall -Wextra -O0 -fsanitize=undefined,address -g
+LDFLAGS:= $(CFLAGS) -lm -lgsl -lgslcblas -g
 
 
 .PHONY: unzip zip clean
