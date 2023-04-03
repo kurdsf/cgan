@@ -7,7 +7,7 @@
 
 #define GEN_TRAINING_NSAMPLES 200
 #define DIS_TRAINING_NSAMPLES 200
-#define GAN_NOISE_MULTIPLIER 400
+#define GAN_NOISE_MULTIPLIER 40
 
 typedef struct {
   size_t isize;
