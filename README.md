@@ -29,7 +29,7 @@ a [GAN](https://en.wikipedia.org/wiki/Generative_adversarial_network).
 
 The MNIST Dataset we use is taken from [here](https://pjreddie.com/projects/mnist-in-csv/).
 
-Currently we only implemented a simple neural network '''library'''.
+
 
 
 
